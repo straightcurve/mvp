@@ -23,7 +23,7 @@ namespace NotSureHowToCallThisOne
             this.rigidbody = rigidbody;
         }
 
-        public float speed = 35f;
+        public float speed = 100f;
         private Vector2 inputData;
 
         public void Update()
@@ -38,7 +38,7 @@ namespace NotSureHowToCallThisOne
 
         public void FixedUpdate()
         {
-            rigidbody.ApplyForce(inputData, speed);
+            rigidbody.ApplyForce(inputData, speed, Rigidbody.ForceMode.Continuous);
         }
     }
 }

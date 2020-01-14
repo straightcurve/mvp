@@ -8,7 +8,6 @@ namespace NotSureHowToCallThisOne
 {
     public class Game : ISystem
     {
-        private List<GameObject> entities = new List<GameObject>();
         private Control canvas;
         private Audio audio;
         private GameObject ball;
@@ -16,8 +15,9 @@ namespace NotSureHowToCallThisOne
         public GameObject player1;
         private object syncEntities = new object();
         public readonly int[] scores = new int[2];
+        public List<GameObject> Entities { get; } = new List<GameObject>();
 
-        public Game(Control canvas, PhysicsV2 physics, Input inputSystem, Graphics graphics, Audio audio)
+        public Game(Control canvas, IPhysicsEngine physics, Input inputSystem, Graphics graphics, Audio audio)
         {
             this.audio = audio;
             this.canvas = canvas;
@@ -38,7 +38,7 @@ namespace NotSureHowToCallThisOne
             lock (syncEntities)
             {
                 //entities.Add(responsive);
-                entities.ForEach(entity =>
+                Entities.ForEach(entity =>
                 {
                     var rigidbody = entity.GetComponent<Rigidbody>();
                     if (rigidbody != null)
@@ -62,7 +62,7 @@ namespace NotSureHowToCallThisOne
         
             Reset();
         }
-        private void CreateBall(PhysicsV2 physics)
+        private void CreateBall(IPhysicsEngine physics)
         {
             this.ball = new GameObject("Ball");
             var renderer = new Renderer(ball, canvas);
@@ -74,6 +74,7 @@ namespace NotSureHowToCallThisOne
             ball.AddComponent(collider);
             var rigidbody = new Rigidbody(ball, collider);
             rigidbody.friction = 0.001f;
+            rigidbody.useGravity = true;
             ball.AddComponent(rigidbody);
             var ballComp = new Ball(ball);
             ball.AddComponent(ballComp);
@@ -81,7 +82,7 @@ namespace NotSureHowToCallThisOne
 
             lock(syncEntities)
             {
-                entities.Add(ball);
+                Entities.Add(ball);
             }
         }
 
@@ -89,9 +90,9 @@ namespace NotSureHowToCallThisOne
         {
             lock (syncEntities)
             {
-                for (int i = 0; i < entities.Count; i++)
+                for (int i = 0; i < Entities.Count; i++)
                 {
-                    entities[i].FixedUpdate();
+                    Entities[i].FixedUpdate();
                 }
             }
         }
@@ -123,7 +124,7 @@ namespace NotSureHowToCallThisOne
 
             lock (syncEntities)
             {
-                entities.Add(player1);
+                Entities.Add(player1);
             }
         }
         private void CreatePlayer2(Input inputSystem)
@@ -148,7 +149,7 @@ namespace NotSureHowToCallThisOne
 
             lock (syncEntities)
             {
-                entities.Add(player2);
+                Entities.Add(player2);
             }
         }
 
@@ -172,7 +173,7 @@ namespace NotSureHowToCallThisOne
 
             lock (syncEntities)
             {
-                entities.Add(goal);
+                Entities.Add(goal);
             }
         }
         private void CreateWall(float x, float y, Size size)
@@ -192,7 +193,7 @@ namespace NotSureHowToCallThisOne
 
             lock (syncEntities)
             {
-                entities.Add(wall);
+                Entities.Add(wall);
             }
         }
 
@@ -209,9 +210,9 @@ namespace NotSureHowToCallThisOne
         public void Update(float delta) {
             lock(syncEntities)
             {
-                for (int i = 0; i < entities.Count; i++)
+                for (int i = 0; i < Entities.Count; i++)
                 {
-                    entities[i].Update();
+                    Entities[i].Update();
                 }
             }
         }

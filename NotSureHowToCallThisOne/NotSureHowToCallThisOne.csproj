@@ -47,10 +47,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ball.cs" />
-    <Compile Include="Engine\Physics\PhysicsV2 - Copy.cs" />
+    <Compile Include="Engine\HPTimer.cs" />
+    <Compile Include="Engine\Physics\IPhysicsEngine.cs" />
+    <Compile Include="Football\Ball.cs" />
     <Compile Include="Engine\Physics\PhysicsV2.cs" />
-    <Compile Include="Responsive.cs" />
+    <Compile Include="Engine\Physics\PhysicsV3.cs" />
+    <Compile Include="Football\Responsive.cs" />
     <Compile Include="DoubleBufferedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -75,12 +77,12 @@
     <Compile Include="Engine\IComponent.cs" />
     <Compile Include="Engine\Input\Input.cs" />
     <Compile Include="FollowPlayer.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="Football\Game.cs" />
     <Compile Include="Engine\Graphics\Graphics.cs" />
-    <Compile Include="Boundary.cs" />
-    <Compile Include="Goal.cs" />
-    <Compile Include="PlayerHit.cs" />
-    <Compile Include="Movement.cs" />
+    <Compile Include="Football\Boundary.cs" />
+    <Compile Include="Football\Goal.cs" />
+    <Compile Include="Football\PlayerHit.cs" />
+    <Compile Include="Football\Movement.cs" />
     <Compile Include="Engine\Physics\Physics.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

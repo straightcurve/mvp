@@ -6,6 +6,16 @@ namespace NotSureHowToCallThisOne
 {
     public class Rigidbody : IComponent
     {
+        public enum ForceMode
+        {
+            //  uses mass
+            Continuous,
+            //  doesnt use mass
+            Acceleration,
+            //  literally changes the velocity
+            VelocityChange,
+        }
+
         public Rigidbody(GameObject parent, ICollider collider)
         {
             this.gameObject = parent;
@@ -27,14 +37,46 @@ namespace NotSureHowToCallThisOne
         public Transform transform { get; }
         public bool useGravity { get; set; }
         public Vector2 velocity { get; set; }
+        public float drag { get; set; } = 10f;
 
-        public void ApplyForce(Vector2 force) {
-            velocity += force;
+        public void ApplyForce(Vector2 force, ForceMode mode = ForceMode.Continuous) {
+            switch (mode)
+            {
+                case ForceMode.Continuous:
+                    this.velocity += (force * mass) * Time.delta;
+                    this.velocity *= (1 - Time.delta * this.drag);
+                    break;
+                case ForceMode.Acceleration:
+                    this.velocity += (force) * Time.delta;
+                    this.velocity *= (1 - Time.delta * this.drag);
+                    break;
+                case ForceMode.VelocityChange:
+                    this.velocity = force;
+                    break;
+                default:
+                    break;
+            }
         }
 
-        public void ApplyForce(Vector2 direction, float magnitude)
+        public void ApplyForce(Vector2 direction, float magnitude, ForceMode mode = ForceMode.Continuous)
         {
-            velocity += direction * magnitude;
+            var force = direction * magnitude;
+            switch (mode)
+            {
+                case ForceMode.Continuous:
+                    this.velocity += (force * mass) * Time.delta;
+                    this.velocity *= (1 - Time.delta * this.drag);
+                    break;
+                case ForceMode.Acceleration:
+                    this.velocity += (force) * Time.delta;
+                    this.velocity *= (1 - Time.delta * this.drag);
+                    break;
+                case ForceMode.VelocityChange:
+                    this.velocity = force;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void Update()

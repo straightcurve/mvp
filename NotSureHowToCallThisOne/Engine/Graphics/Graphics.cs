@@ -41,14 +41,6 @@ namespace NotSureHowToCallThisOne
                 var size = renderers[i].size;
                 var rect = new Rectangle(top, size);
 
-                if(renderers[i].gameObject.name.ToLower().Contains("player"))
-                {
-                    while(false)
-                    {
-
-                    }
-                }
-
                 if (renderers[i].sprite == null)
                     e.Graphics.DrawRectangle(new Pen(Color.Black), rect);
                 else

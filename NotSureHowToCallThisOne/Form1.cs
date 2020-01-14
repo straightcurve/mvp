@@ -17,7 +17,7 @@ namespace NotSureHowToCallThisOne
         private System.Windows.Forms.Timer timer;
         private Game game;
         private Input inputSystem;
-        private PhysicsV2 physics;
+        private IPhysicsEngine physics;
         private Graphics graphics;
         private Audio audio;
         private Task physicsTask;
@@ -29,7 +29,10 @@ namespace NotSureHowToCallThisOne
         private static string GameElapsed;
         internal static string OtherNewVelocity;
         internal static string NewVelocity;
-        private const int fpsLimiter = 1000;
+        private SynchronizationContext physicsContext;
+        private SynchronizationContext graphicsContext;
+        private SynchronizationContext mainContext;
+        private const int fpsLimiter = 60;
 
         public static string Delta { get; internal set; }
         public static string GraphicsElapsed { get; internal set; }
@@ -69,59 +72,133 @@ namespace NotSureHowToCallThisOne
             KeyUp += inputSystem.OnKeyUp;
             KeyDown += inputSystem.OnKeyDown;
 
-            DoubleBuffered = true;
-            physics = new PhysicsV2();
+
+            //  fixed update task
+            //  runs at fixed delta time
+            //  once finished, posts to physics context
+            //  frame rate independent
+
+            //  main task
+            //  awake -- runs once at instantiation
+            //  update -- runs once per frame
+            //  lateUpdate -- runs once per frame after update
+            //  onApplicationPause -- checks if pause is requested, allows one extra frame to run to
+            //                        allow the game to show graphics that indicate the paused state
+
+            var fixedUpdateTask = new Task(async () => {
+                var sw = new HPTimer();
+                sw.Start();
+                double t = 0.0;
+                const double dt = 0.01;
+                Time.delta = (float)dt;
+                Time.fixedDelta = (float)dt;
+                double currentTime = sw.Elapsed;
+                double accumulator = 0.0;
+
+                while (true)
+                {
+                    double newTime = sw.Elapsed;
+                    double frameTime = newTime - currentTime;
+                    currentTime = newTime;
+
+                    accumulator += frameTime;
+
+                    while (accumulator >= dt)
+                    {
+                        for (int e = 0; e < game.Entities.Count; e++)
+                            game.Entities[e].FixedUpdate();
+
+                        physics.Simulate((float)dt);
+                        accumulator -= dt;
+                        t += dt;
+                    }
+
+                    //  render?
+                }
+
+                var interval = (int)(1000f / 60);
+
+                do
+                {
+                    await Task.Delay(interval);
+                    for (int e = 0; e < game.Entities.Count; e++)
+                        game.Entities[e].FixedUpdate();
+
+                    physics.Simulate(interval);
+                } while (true);
+            }, source.Token);
+
+            mainTask = new Task(async () => {
+                mainContext = new SynchronizationContext();
+
+                var interval = (int)(1000f / fpsLimiter);
+
+                do
+                {
+                    await Task.Delay(interval);
+                    //var newPrevious = sw.Elapsed;
+                    //var delta = (float)(newPrevious - previous);
+                    //if (delta >= interval)
+                    //{
+                    game.Update(interval);
+
+                    graphicsContext.Send((state) => {
+                        graphics.Update(interval);
+                    }, null);
+                    //}
+                } while (true);
+            }, source.Token);
+
+            physics = new PhysicsV3();
             graphics = new Graphics(doubleBufferedPanel1);
             audio = new Audio();
             game = new Game(doubleBufferedPanel1, physics, inputSystem, graphics, audio);
-            physicsTask = new Task(() => {
-                var start = DateTime.Now.Ticks;
-                long previous = 0;
-                var interval = 1000f / 120;
-                var physicsSw = new Stopwatch();
-                var gameSw = new Stopwatch();
+            //physicsTask = new Task(() => {
+            //    var start = DateTime.Now.Ticks;
+            //    long previous = 0;
+            //    var interval = 1000f / 120;
+            //    var physicsSw = new Stopwatch();
+            //    var gameSw = new Stopwatch();
+            //    physicsContext = SynchronizationContext.Current;
+            //    do
+            //    {
+            //        var newPrevious = DateTime.Now.Ticks;
+            //        var delta = (newPrevious - previous) / TimeSpan.TicksPerMillisecond;
+            //        if (delta >= interval)
+            //        {
+            //            physicsSw.Restart();
+            //            physics.Simulate(delta);
+            //            physicsSw.Stop();
+            //            Form1.PhysicsElapsed = $"{physicsSw.ElapsedMilliseconds}";
+            //            //  any changes that need to be made go here
+            //            gameSw.Restart();
+            //            game.FixedUpdate(delta);
+            //            gameSw.Stop();
+            //            Form1.GameElapsed = $"{gameSw.ElapsedMilliseconds}";
+            //            previous = newPrevious;
+            //        }
+            //    } while (true);
+            //}, source.Token);
+            graphicsTask = new Task(async () => {
+                graphicsContext = new SynchronizationContext();
+
+                var interval = (int)(1000f / fpsLimiter);
+
                 do
                 {
-                    var newPrevious = DateTime.Now.Ticks;
-                    var delta = (newPrevious - previous) / TimeSpan.TicksPerMillisecond;
-                    if (delta >= interval)
-                    {
-                        physicsSw.Restart();
-                        physics.Simulate(delta);
-                        physicsSw.Stop();
-                        Form1.PhysicsElapsed = $"{physicsSw.ElapsedMilliseconds}";
-                        //  any changes that need to be made go here
-                        gameSw.Restart();
-                        game.FixedUpdate(delta);
-                        gameSw.Stop();
-                        Form1.GameElapsed = $"{gameSw.ElapsedMilliseconds}";
-                        previous = newPrevious;
-                    }
+                    await Task.Delay(interval);
+                    //graphics.Update(interval);
                 } while (true);
             }, source.Token);
-            graphicsTask = new Task(() => {
-                var start = DateTime.Now.Ticks;
-                long previous = 0;
-                var interval = 1000f / 60;
-                do
-                {
-                    var newPrevious = DateTime.Now.Ticks;
-                    var delta = (newPrevious - previous) / TimeSpan.TicksPerMillisecond;
-                    if (delta >= interval)
-                    {
-                        graphics.Update(delta);
-                        previous = newPrevious;
-                    }
-                } while (true);
-            }, source.Token);
-            mainTask = new Task(() => action(game, 1000f / fpsLimiter), source.Token);
+            
 
-            audioTask = new Task(() => action(audio, 1000f / fpsLimiter), source.Token);
+            //audioTask = new Task(() => action(audio, 1000f / fpsLimiter), source.Token);
 
-            physicsTask.Start();
+            //physicsTask.Start();
+            fixedUpdateTask.Start();
             graphicsTask.Start();
             mainTask.Start();
-            audioTask.Start();
+            //audioTask.Start();
 
             Application.ApplicationExit += OnApplicationQuit;
 
@@ -183,5 +260,11 @@ namespace NotSureHowToCallThisOne
         {
 
         }
+    }
+
+    public static class Time
+    {
+        public static float delta;
+        public static float fixedDelta;
     }
 }
