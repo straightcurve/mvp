@@ -1,0 +1,20 @@
+﻿
+physics:
+	[X] different modes of applying force
+	[X] collision detection
+	[X] trigger colliders
+
+multi-thread sync:
+	[] sync on gameobject's SyncRoot prop
+
+actual game:
+	[X] goals
+	[] score with display
+	[X] shooting
+
+
+game loop:
+	[X]	fixed update
+	[X]	physics
+    [X] update
+	[X] render

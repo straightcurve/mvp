@@ -9,17 +9,21 @@ namespace NotSureHowToCallThisOne
 
         public GameObject()
         {
-            transform = new Transform();
-            components.Add(transform);
+            transform = new Transform(this);
+            lock(SyncRoot)
+                components.Add(transform);
         }
 
         public GameObject(string name) : this()
         {
-            this.name = name;
+            lock(SyncRoot)
+                this.name = name;
         }
 
         public string name { get; set; }
         public Transform transform { get; private set; }
+
+        public object SyncRoot { get; } = new object();
 
         public event Action<ICollider> OnTriggerEnter;
         public event Action<ICollider> OnTriggerStay;
@@ -30,63 +34,79 @@ namespace NotSureHowToCallThisOne
 
         public void AddComponent(IComponent component)
         {
-            components.Add(component);
+            lock(SyncRoot)
+                components.Add(component);
         }
 
         public T GetComponent<T>() where T: class, IComponent
         {
-            for (int i = 0; i < components.Count; i++)
+            lock(SyncRoot)
             {
-                var component = components[i] as T;
-                if (component == null)
-                    continue;
-                return component;
+                for (int i = 0; i < components.Count; i++)
+                {
+                    var component = components[i] as T;
+                    if (component == null)
+                        continue;
+                    return component;
+                }
             }
             return null;
         }
 
         public void Update() {
-            for (int i = 0; i < components.Count; i++)
+            lock (SyncRoot)
             {
-                components[i].Update();
+                for (int i = 0; i < components.Count; i++)
+                {
+                    components[i].Update();
+                }
             }
         }
 
         public void InvokeOnTriggerStay(ICollider collider)
         {
-           OnTriggerStay?.Invoke(collider);
+            lock (SyncRoot)
+                OnTriggerStay?.Invoke(collider);
         }
 
         public void InvokeOnCollisionStay(ICollider collider)
         {
-            OnCollisionStay?.Invoke(collider);
+            lock(SyncRoot)
+                OnCollisionStay?.Invoke(collider);
         }
         public void FixedUpdate()
         {
-            for (int i = 0; i < components.Count; i++)
+            lock(SyncRoot)
             {
-                components[i].FixedUpdate();
+                for (int i = 0; i < components.Count; i++)
+                {
+                    components[i].FixedUpdate();
+                }
             }
         }
 
         public void InvokeOnTriggerEnter(ICollider other)
         {
-            OnTriggerEnter?.Invoke(other);
+            lock(SyncRoot)
+                OnTriggerEnter?.Invoke(other);
         }
 
         public void InvokeOnCollisionEnter(ICollider other)
         {
-            OnCollisionEnter?.Invoke(other);
+            lock(SyncRoot)
+                OnCollisionEnter?.Invoke(other);
         }
 
         public void InvokeOnTriggerExit(ICollider other)
         {
-            OnTriggerExit?.Invoke(other);
+            lock(SyncRoot)
+                OnTriggerExit?.Invoke(other);
         }
 
         public void InvokeOnCollisionExit(ICollider other)
         {
-            OnCollisionExit?.Invoke(other);
+            lock(SyncRoot)
+                OnCollisionExit?.Invoke(other);
         }
     }
 }

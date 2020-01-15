@@ -43,12 +43,10 @@ namespace NotSureHowToCallThisOne
             switch (mode)
             {
                 case ForceMode.Continuous:
-                    this.velocity += (force * mass) * Time.delta;
-                    this.velocity *= (1 - Time.delta * this.drag);
+                    this.velocity += (force * mass) * Time.deltaTime;
                     break;
                 case ForceMode.Acceleration:
-                    this.velocity += (force) * Time.delta;
-                    this.velocity *= (1 - Time.delta * this.drag);
+                    this.velocity += (force) * Time.deltaTime;
                     break;
                 case ForceMode.VelocityChange:
                     this.velocity = force;
@@ -64,12 +62,10 @@ namespace NotSureHowToCallThisOne
             switch (mode)
             {
                 case ForceMode.Continuous:
-                    this.velocity += (force * mass) * Time.delta;
-                    this.velocity *= (1 - Time.delta * this.drag);
+                    this.velocity += (force * mass) * Time.deltaTime;
                     break;
                 case ForceMode.Acceleration:
-                    this.velocity += (force) * Time.delta;
-                    this.velocity *= (1 - Time.delta * this.drag);
+                    this.velocity += (force) * Time.deltaTime;
                     break;
                 case ForceMode.VelocityChange:
                     this.velocity = force;

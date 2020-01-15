@@ -217,25 +217,12 @@ namespace NotSureHowToCallThisOne
                             var cachedOtherVelocity = otherRigidbody.velocity;
                             newVelocity = ((rigidbody.mass - otherRigidbody.mass) / (rigidbody.mass + otherRigidbody.mass)) * cachedVelocity + ((2 * otherRigidbody.mass) / (rigidbody.mass + otherRigidbody.mass)) * cachedOtherVelocity;
                             var otherNewVelocity = ((2 * rigidbody.mass) / (rigidbody.mass + otherRigidbody.mass)) * cachedVelocity + ((otherRigidbody.mass - rigidbody.mass) / (rigidbody.mass + otherRigidbody.mass)) * cachedOtherVelocity;
-                            if(rigidbody.gameObject.name.ToLower().Contains("player"))
-                                Form1.NewVelocity = $"Name: {rigidbody.gameObject.name}\nVelocity: {newVelocity}";
-                            if(rigidbody.gameObject.name.ToLower().Contains("ball"))
-                                Form1.OtherNewVelocity = $"Name: {rigidbody.gameObject.name}\nVelocity: {otherNewVelocity}";
                             otherRigidbody.velocity = otherNewVelocity;
                             tokens.Add(token1);
                             tokens.Add(token2);
                         }
 
                         rigidbody.velocity = newVelocity;
-
-                        
-
-
-                        //otherRigidbody.velocity = otherNewVelocity;
-                        //lock(syncCollisions)
-                        //{
-                        //    collisions.Add(collision);
-                        //}
                     }
                 }
             }
@@ -388,12 +375,12 @@ namespace NotSureHowToCallThisOne
                     if (!a.isStatic)
                     {
                         var x = (a.collider.center.X - b.collider.center.X + b.collider.halfSize.Width);
-                        a.transform.position.X -= x;
+                        //a.transform.position.X -= x;
                     }
                     if (!b.isStatic)
                     {
                         var x = (b.collider.center.X - a.collider.center.X + b.collider.halfSize.Width);
-                        b.transform.position.X += x;
+                        //b.transform.position.X += x;
                     }
                 }
                 else
@@ -402,12 +389,12 @@ namespace NotSureHowToCallThisOne
                     if (!a.isStatic)
                     {
                         var x = (a.collider.center.X - b.collider.center.X);
-                        a.transform.position.X -= x;
+                        //a.transform.position.X -= x;
                     }
                     if (!b.isStatic)
                     {
                         var x = (b.collider.center.X - a.collider.center.X);
-                        b.transform.position.X += x;
+                        //b.transform.position.X += x;
                     }
                 }
             }
@@ -419,12 +406,12 @@ namespace NotSureHowToCallThisOne
                     if (!a.isStatic)
                     {
                         var y = (a.collider.center.Y - b.collider.center.Y);
-                        a.transform.position.Y = a.transform.position.Y - y;
+                        //a.transform.position.Y = a.transform.position.Y - y;
                     }
                     if (!b.isStatic)
                     {
                         var y = (b.collider.center.Y - a.collider.center.Y);
-                        b.transform.position.Y = b.transform.position.Y + y;
+                        //b.transform.position.Y = b.transform.position.Y + y;
                     }
                 }
                 else
@@ -433,12 +420,12 @@ namespace NotSureHowToCallThisOne
                     if (!a.isStatic)
                     {
                         var y = (a.collider.center.Y - b.collider.center.Y);
-                        a.transform.position.Y = a.transform.position.Y - y;
+                        //a.transform.position.Y = a.transform.position.Y - y;
                     }
                     if (!b.isStatic)
                     {
                         var y = (b.collider.center.Y - a.collider.center.Y);
-                        b.transform.position.Y = b.transform.position.Y + y;
+                        //b.transform.position.Y = b.transform.position.Y + y;
                     }
                 }
             }

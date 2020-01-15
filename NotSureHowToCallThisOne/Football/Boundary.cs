@@ -22,10 +22,10 @@ namespace NotSureHowToCallThisOne
         public void Update()
         {
             return;
-            if (gameObject.transform.position.X > canvas.Width - collider.halfSize.Width)
-                gameObject.transform.position.X = canvas.Width - collider.halfSize.Width;
-            if (gameObject.transform.position.X < 0)
-                gameObject.transform.position.X = 0;
+            if (gameObject.transform.position.X > canvas.Width - collider.halfSize.Width) ;
+                //gameObject.transform.position.X = canvas.Width - collider.halfSize.Width;
+            if (gameObject.transform.position.X < 0) ;
+                //gameObject.transform.position.X = 0;
         }
 
         public void FixedUpdate()

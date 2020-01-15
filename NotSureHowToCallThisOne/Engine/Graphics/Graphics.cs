@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace NotSureHowToCallThisOne
 {
-    public class Graphics : ISystem {
+    public class Graphics {
         private readonly List<Renderer> renderers = new List<Renderer>();
         private Control canvas;
 
@@ -16,6 +16,7 @@ namespace NotSureHowToCallThisOne
 
             form.Paint += Paint;
         }
+
         public void Add(Renderer renderer)
         {
             if (renderer == null)
@@ -28,8 +29,6 @@ namespace NotSureHowToCallThisOne
         }
 
         private void Paint(object sender, PaintEventArgs e) {
-            var sw = new Stopwatch();
-            sw.Start();
             for (int i = 0; i < renderers.Count; i++)
             {
                 if (!renderers[i].enabled)
@@ -41,25 +40,16 @@ namespace NotSureHowToCallThisOne
                 var size = renderers[i].size;
                 var rect = new Rectangle(top, size);
 
-                if (renderers[i].sprite == null)
-                    e.Graphics.DrawRectangle(new Pen(Color.Black), rect);
-                else
-                    e.Graphics.DrawImage(renderers[i].sprite, rect);
-            }
-            sw.Stop();
-            Form1.GraphicsElapsed = $"{sw.ElapsedMilliseconds}";
-        }
-        public void Update(float delta) {
-            try
-            {
-                _ = canvas.Invoke(new MethodInvoker(() =>
+                try
                 {
-                    canvas.Invalidate();
-                }));
-            }
-            catch
-            {
+                    if (renderers[i].sprite == null)
+                        e.Graphics.DrawRectangle(new Pen(Color.Black), rect);
+                    else
+                        e.Graphics.DrawImage(renderers[i].sprite, rect);
+                } catch
+                {
 
+                }
             }
         }
     }

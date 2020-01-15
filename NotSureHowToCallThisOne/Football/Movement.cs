@@ -30,8 +30,6 @@ namespace NotSureHowToCallThisOne
         {
             var x = input.IsPressed(left) ? -1 : input.IsPressed(right) ? 1 : 0;
             var y = input.IsPressed(down) ? 1 : input.IsPressed(up) ? -1 : 0;
-            //if (x == 0 && y == 0)
-            //    return;
 
             this.inputData = new Vector2(x, y);
         }

@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace NotSureHowToCallThisOne
 {
-    public class Game : ISystem
+    public class Game
     {
         private Control canvas;
         private Audio audio;
@@ -22,11 +22,20 @@ namespace NotSureHowToCallThisOne
             this.audio = audio;
             this.canvas = canvas;
 
+            ResourceLoader.LoadImage(".\\Resources\\player1.png", "p1");
+            ResourceLoader.LoadImage(".\\Resources\\player2.png", "p2");
+            ResourceLoader.LoadImage(".\\Resources\\player1_hit.png", "p1hit");
+            ResourceLoader.LoadImage(".\\Resources\\player2_hit.png", "p2hit");
+            ResourceLoader.LoadImage(".\\Resources\\ball.png", "ball");
+            ResourceLoader.LoadSound(".\\Resources\\hit.wav", "hit");
+
             CreateWall(canvas.Width / 2, 50, new Size(canvas.Width, 100));
             CreateWall(canvas.Width / 2, canvas.Height - 50, new Size(canvas.Width, 100));
-            CreateWall(50, canvas.Height / 2, new Size(100, canvas.Height));
-            CreateWall(canvas.Width - 50, canvas.Height / 2, new Size(100, canvas.Height));
+            //CreateWall(50, canvas.Height / 2, new Size(100, canvas.Height));
+            //CreateWall(canvas.Width - 50, canvas.Height / 2, new Size(100, canvas.Height));
 
+            CreateGoal(25, canvas.Height / 2, new Size(50, canvas.Height / 3), 0);
+            CreateGoal(canvas.Width - 26, canvas.Height / 2, new Size(50, canvas.Height / 3), 1);
 
             CreateBall(physics);
             CreatePlayer1(inputSystem);
@@ -73,7 +82,9 @@ namespace NotSureHowToCallThisOne
             collider.size = renderer.size;
             ball.AddComponent(collider);
             var rigidbody = new Rigidbody(ball, collider);
+            rigidbody.mass = 10;
             rigidbody.friction = 0.001f;
+            rigidbody.drag = 10f;
             rigidbody.useGravity = true;
             ball.AddComponent(rigidbody);
             var ballComp = new Ball(ball);
@@ -83,17 +94,6 @@ namespace NotSureHowToCallThisOne
             lock(syncEntities)
             {
                 Entities.Add(ball);
-            }
-        }
-
-        public void FixedUpdate(long delta)
-        {
-            lock (syncEntities)
-            {
-                for (int i = 0; i < Entities.Count; i++)
-                {
-                    Entities[i].FixedUpdate();
-                }
             }
         }
 
@@ -161,11 +161,11 @@ namespace NotSureHowToCallThisOne
             goal.AddComponent(renderer);
             var collider = new BoxCollider(goal);
             collider.isTrigger = true;
-            collider.size = renderer.size;
+            collider.size = size;
             goal.AddComponent(collider);
-            var rigidbody = new Rigidbody(goal, collider);
-            rigidbody.isStatic = true;
-            goal.AddComponent(rigidbody);
+            //var rigidbody = new Rigidbody(goal, collider);
+            //rigidbody.isStatic = true;
+            //goal.AddComponent(rigidbody);
             var goalComp = new Goal(goal, player);
             goalComp.Scored += OnScored;
             goal.AddComponent(goalComp);
@@ -207,7 +207,18 @@ namespace NotSureHowToCallThisOne
             player2.transform.position = new Vector2(canvas.Width - canvas.Width / 4, canvas.Height / 2);
         }
 
-        public void Update(float delta) {
+        public void FixedUpdate()
+        {
+            lock (syncEntities)
+            {
+                for (int i = 0; i < Entities.Count; i++)
+                {
+                    Entities[i].FixedUpdate();
+                }
+            }
+        }
+
+        public void Update() {
             lock(syncEntities)
             {
                 for (int i = 0; i < Entities.Count; i++)

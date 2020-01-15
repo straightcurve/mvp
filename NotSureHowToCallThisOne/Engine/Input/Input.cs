@@ -6,23 +6,23 @@ namespace NotSureHowToCallThisOne
 
         private readonly bool[] keys = new bool[255];
 
-        public Input()
-        {
-
-        }
-
         public bool IsPressed(Keys key) {
-            return keys[(int)key];
+            var pressed = false;
+            lock (keys.SyncRoot)
+                pressed = keys[(int)key];
+            return pressed;
         }
 
         public void OnKeyDown(object sender, KeyEventArgs e)
         {
-            keys[(int)e.KeyCode] = true;
+            lock (keys.SyncRoot)
+                keys[(int)e.KeyCode] = true;
         }
 
         public void OnKeyUp(object sender, KeyEventArgs e)
         {
-            keys[(int)e.KeyCode] = false;
+            lock (keys.SyncRoot)
+                keys[(int)e.KeyCode] = false;
         }
     }
 }
